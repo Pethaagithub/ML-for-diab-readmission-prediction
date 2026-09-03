@@ -1,0 +1,89 @@
+# =========================================================
+# Central configuration for the Diabetes Readmission Pipeline
+# =========================================================
+
+paths:
+  raw_data: "data/raw/diabetic_data.csv"
+  processed_data: "data/processed/processed_data.csv"
+  processed_sample: "02_data_preprocessing/output/processed_data_sample.csv"
+
+  # EDA
+  eda_output_dir: "01_eda/output"
+
+  # Preprocessing
+  preprocessing_output_dir: "02_data_preprocessing/output"
+
+  # Feature engineering
+  feature_engineering_output_dir: "03_feature_engineering/output"
+  necessity_features: "03_feature_engineering/output/necessity_selected_features.json"
+  criticality_features: "03_feature_engineering/output/criticality_selected_features.json"
+
+  # Balancing
+  balancing_output_dir: "04_data_balancing/output"
+  necessity_balanced_data: "data/processed/necessity_balanced.csv"
+  criticality_balanced_data: "data/processed/criticality_balanced.csv"
+
+  # Model building
+  model_output_dir: "05_model_building/output"
+  necessity_model_dir: "05_model_building/output/necessity_models"
+  criticality_model_dir: "05_model_building/output/criticality_models"
+
+  # Evaluation
+  evaluation_output_dir: "06_evaluation/output"
+
+  # Explainability
+  explainability_output_dir: "07_explainability/output"
+
+# Columns dropped for being irrelevant or having >40% missing values
+columns_to_drop:
+  - encounter_id
+  - patient_nbr
+  - weight
+  - medical_specialty
+  - max_glu_serum
+  - A1Cresult
+  - payer_code
+
+# Medication columns that only ever take the value 'No' and add no signal
+constant_medication_columns:
+  - examide
+  - citoglipton
+
+# Random seed used across the pipeline for reproducibility
+random_state: 42
+
+# Train / test split
+test_size: 0.20
+
+# Feature selection
+fisher_score_threshold: 3.0
+
+# Balancing strategy per task (as described in the paper)
+balancing:
+  necessity: "tomek"     # TOMEK links undersampling
+  criticality: "smote"   # SMOTE oversampling
+
+# Optuna
+optuna:
+  n_trials: 50
+  timeout_seconds: 3600
+  direction: "maximize"
+  metric: "f1"
+
+# Models to train (baseline comparison)
+models:
+  - knn
+  - logistic_regression
+  - naive_bayes
+  - decision_tree
+  - random_forest
+  - catboost
+  - stacking
+
+targets:
+  necessity:
+    positive_classes: ["<30", ">30"]
+    negative_class: "No"
+  criticality:
+    positive_classes: ["<30"]
+    negative_class: "No"
